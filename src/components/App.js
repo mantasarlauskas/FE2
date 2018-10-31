@@ -1,9 +1,9 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, Component } from 'react';
 import axios from 'axios';
 import Card from './Card';
 import { endpoints } from '../../config';
 
-export default class App extends React.Component {
+export default class App extends Component {
   constructor() {
     super();
 
@@ -32,48 +32,64 @@ export default class App extends React.Component {
   requestMovies = () => {
     axios
       .get(endpoints.mostPopularMovies())
-      .then(res => this.setMovieList(res.data.results))
+      .then(({ data: { results } }) => this.setMovieList(results))
       .catch(error => console.log(error));
   };
 
   requestGenres = () => {
     axios
       .get(endpoints.genres())
-      .then(res => this.setGenreList(res.data.genres))
+      .then(({ data: { genres } }) => this.setGenreList(genres))
       .catch(error => console.log(error));
   };
 
-  requestMoviesByGenre = ({ target: { value } }) => {
+  requestMoviesByGenre = id => {
     axios
-      .get(endpoints.genreMovies(value))
-      .then(res => this.setMovieList(res.data.results))
+      .get(endpoints.genreMovies(id))
+      .then(({ data: { results } }) => this.setMovieList(results))
       .catch(error => console.log(error));
   };
 
   toggleLike = id => {
     const { likedMovies } = this.state;
-    likedMovies.includes(id) ? this.setState({ likedMovies: likedMovies.filter(movieId => movieId !== id) }) :
-      this.setState({ likedMovies: [ ...likedMovies, id ] });
+    likedMovies.includes(id)
+      ? this.setState({ likedMovies: likedMovies.filter(movieId => movieId !== id) })
+      : this.setState({ likedMovies: [ ...likedMovies, id ] });
+  };
+
+  displayCard = ({ id, ...movie }) => {
+    const { likedMovies } = this.state;
+    return (
+      <Card
+        toggleLike={() => this.toggleLike(id)}
+        key={id}
+        movie={movie}
+        liked={likedMovies.includes(id)}
+      />
+    );
+  };
+
+  displayGenre = ({ id, name }) => {
+    return (
+      <div
+        className="genre"
+        key={id}
+        onClick={() => this.requestMoviesByGenre(id)}
+      >
+        {name}
+      </div>
+    );
   };
 
   render() {
-    const { movieList, genreList, likedMovies } = this.state;
+    const { movieList, genreList } = this.state;
     return (
       <Fragment>
-        <select onChange={this.requestMoviesByGenre} className="genres">
-          {genreList.map(({ id, name }) =>
-            <option className="genre" key={id} value={id}>{name}</option>)
-          }
-        </select>
+        <div className="genres">
+          {genreList.map(this.displayGenre)}
+        </div>
         <div className="cards">
-          {movieList.map(({ id, ...movie }) =>
-            <Card
-              toggleLike={() => this.toggleLike(id)}
-              key={id}
-              movie={movie}
-              liked={likedMovies.includes(id)}
-            />)
-          }
+          {movieList.map(this.displayCard)}
         </div>
       </Fragment>
     );
