@@ -17,18 +17,6 @@ export default class App extends Component {
     this.requestMovies();
   }
 
-  setMovieList = movieList => {
-    this.setState({
-      movieList
-    });
-  };
-
-  setGenreList = genreList => {
-    this.setState({
-      genreList
-    });
-  };
-
   requestMovies = () => {
     axios
       .get(endpoints.mostPopularMovies())
@@ -50,8 +38,21 @@ export default class App extends Component {
       .catch(error => console.log(error));
   };
 
+  setMovieList = movieList => {
+    this.setState({
+      movieList
+    });
+  };
+
+  setGenreList = genreList => {
+    this.setState({
+      genreList
+    });
+  };
+
   toggleLike = id => {
     const { likedMovies } = this.state;
+
     likedMovies.includes(id)
       ? this.setState({ likedMovies: likedMovies.filter(movieId => movieId !== id) })
       : this.setState({ likedMovies: [ ...likedMovies, id ] });
@@ -59,6 +60,7 @@ export default class App extends Component {
 
   displayCard = ({ id, ...movie }) => {
     const { likedMovies } = this.state;
+
     return (
       <Card
         toggleLike={() => this.toggleLike(id)}
@@ -83,6 +85,7 @@ export default class App extends Component {
 
   render() {
     const { movieList, genreList } = this.state;
+
     return (
       <Fragment>
         <div className="genres">

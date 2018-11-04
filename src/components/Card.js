@@ -41,7 +41,7 @@ export default class Card extends Component {
           {original_title}
         </div>
         <div className="card__like">
-          <i className={`fa ${liked ? 'fa-heart' : 'fa-heart-o'}`} onClick={toggleLike}/>
+          <i className={`fa ${liked ? 'fa-heart' : 'fa-heart-o'}`} onClick={toggleLike} />
         </div>
         <div className="card__subtitle">
           <span>{release_date}</span>
