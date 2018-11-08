@@ -1,7 +1,9 @@
 import React from 'react';
 import { getImageUrl } from '../../config';
+import { connect } from 'react-redux';
+import { heartMovie, unheartMovie } from "../thunks";
 
-export default class Card extends React.Component {
+class Card extends React.Component {
   constructor() {
     super();
 
@@ -14,7 +16,7 @@ export default class Card extends React.Component {
     const { opened } = this.state;
 
     this.setState({
-      opened: !opened,
+      opened: !opened
     });
   };
 
@@ -59,13 +61,20 @@ export default class Card extends React.Component {
             Summary
           </div>
 
-          {opened
-            ? <div className="card-info__description">{overview}</div>
-            : null
-          }
+          {opened && <div className="card-info__description">{overview}</div>}
 
         </div>
       </div>
     );
   }
 }
+
+export default connect(
+  ({ movies: { hearted } }, { movie: { id } }) => ({
+    isHearted: hearted.includes(id)
+  }),
+  (dispatch, { movie: { id, title } }) => ({
+    onAddHeart: () => dispatch(heartMovie(id, title)),
+    onRemoveHeart: () => dispatch(unheartMovie(id, title))
+  })
+)(Card);

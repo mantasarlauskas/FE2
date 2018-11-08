@@ -1,80 +1,50 @@
-import React from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import Card from './Card';
 import Genres from './Genres';
 import { getMovies } from '../thunks';
-import { setMovies } from '../actions';
+import { getCurrentDate } from '../date';
+import { addAppLoadedEvent } from "../actions";
 
-class App extends React.Component {
+class App extends Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      hearted: [],
-    };
 
     props.onGetMovies();
   }
 
-  setMovieList = (movieList) => {
-    this.setState({
-      movieList,
-    })
-  };
+  componentDidMount() {
+    const { onLoad } = this.props;
 
-  addHeart = (id) => {
-    const { hearted } = this.state;
-
-    this.setState({
-      hearted: [ ...hearted, id ],
-    })
-  };
-
-  removeHeart = (id) => {
-    const { hearted } = this.state;
-
-    this.setState({
-      hearted: hearted.filter((currentId) => currentId !== id),
-    })
-  };
+    onLoad(getCurrentDate());
+  }
 
   render() {
     const { movieList } = this.props;
-    const { hearted } = this.state;
 
     return (
-      <React.Fragment>
-        <Genres onChangeList={this.setMovieList} />
+      <Fragment>
+        <Genres />
 
         <div className="cards">
-          {movieList.map((movie) => (
+          {movieList.map(movie => (
             <Card
               key={movie.id}
-              isHearted={hearted.includes(movie.id)}
-              onAddHeart={() => this.addHeart(movie.id)}
-              onRemoveHeart={() => this.removeHeart(movie.id)}
               movie={movie}
             />
           ))}
         </div>
-      </React.Fragment>
+      </Fragment>
     );
   }
 }
 
 export default connect(
-  // function to get data from redux store to this components props
-  (state) => {
-    return {
-      movieList: state.movies.list,
-    };
-  },
-  // function to pass action callers to this components props
-  (dispatch) => {
-    return {
-      // onSetMovies - simplest way to pass data to store
-      onSetMovies: (movies) => dispatch(setMovies(movies)),
-      onGetMovies: () => dispatch(getMovies()),
-    };
-  },
+  ({ movies: { list } }) => ({
+    movieList: list
+  }),
+  dispatch => ({
+    onGetMovies: () => dispatch(getMovies()),
+    onLoad: date => dispatch(addAppLoadedEvent(date))
+  })
 )(App);
